@@ -1,11 +1,14 @@
-package za.co.nemesisnet.supreme.invention.server;
+package za.co.nemesisnet.supreme.invention.model;
 
 import java.io.Serializable;
 
 // must implement Serializable in order to be sent
 public class Message implements Serializable {
-    private final String text;
+    private  String text;
+ public Message()
+ {
 
+ }
     public Message(String text) {
         this.text = text;
     }
@@ -13,4 +16,7 @@ public class Message implements Serializable {
     public String getText() {
         return text;
     }
+     public void setText(String text) {
+         this.text = text;
+     }
 }
