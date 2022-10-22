@@ -11,10 +11,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import za.co.nemesisnet.supreme.invention.model.Book;
-import za.co.nemesisnet.supreme.invention.model.DatabaseConnection;
-import za.co.nemesisnet.supreme.invention.model.Loan;
-import za.co.nemesisnet.supreme.invention.model.User;
+
+import za.co.nemesisnet.supreme.invention.model.*;
 
 import javax.swing.*;
 
@@ -36,11 +34,11 @@ public class Read {
 
         User user = null;
         System.out.println(userName);
-        System.out.println("from USER LOGIN form, passed to  readClass:  " + password);
+        System.out.println("Read Class : USER LOGIN form, passed to  readClass:  " + password);
+    //SELECT * FROM ADMINISTRATOR.USERTABLE FETCH FIRST 100 ROWS ONLY;
+      String sql = "SELECT * FROM ADMINISTRATOR.USERTABLE WHERE userName='" + userName + "'";
 
-      
-
-        String sql = "SELECT * FROM usertable WHERE userName='" + userName + "'";
+      //  String sql = "SELECT * FROM usertable WHERE userName='" + userName + "'";
         Statement statement = null;
         try {
             statement = conn.createStatement();
@@ -144,7 +142,9 @@ public class Read {
         DatabaseConnection databaseConnection = new DatabaseConnection();
 
         Connection conn = databaseConnection.getDatabaseConnection();
-        String sql = "SELECT * FROM booktable";
+        //SELECT * FROM ADMINISTRATOR.BOOK
+       // String sql = "SELECT * FROM booktable";
+        String sql = "SELECT * FROM ADMINISTRATOR.BOOK";
         Statement statement = null;
         try {
             statement = conn.createStatement();
@@ -154,18 +154,15 @@ public class Read {
             String output = "Connected: \n";
 
             while (result.next()) {
-                String id = result.getString(1);
-                String title = result.getString(2);
-                String subTitle = result.getString(3);
-                String author = result.getString("author");
-                String ISBN = result.getString(5);
-                String description = result.getString(6);
-                String rating = result.getString(7);
-                String imageLink = result.getString(8);
-
-                output = output + ++count + " " + title + " " + subTitle + " " + author + " " + ISBN + " " + rating + " \n" + description + "\n" + imageLink;
+                String ISBN = result.getString(1); //isbn
+                String title = result.getString(2); //title
+                String author = result.getString("author"); //author
+                String category = result.getString(4); //category  
+                boolean availableForLoan = result.getBoolean(5); //availableForLoan
+              
+                output = output + ++count + "ISBN :  " + ISBN + "Title :  " + title + "Author: " + author + "Category: " + category + "Available For Loan : " + availableForLoan;
                 System.out.println(output);
-                bookList.add(new Book(count, title, subTitle, ISBN, author, description, author, imageLink, true));
+                bookList.add(new Book(ISBN, title, author, category, availableForLoan));
                             
             }
             conn.close();
@@ -175,5 +172,123 @@ public class Read {
             Logger.getLogger(Read.class.getName()).log(Level.SEVERE, null, ex);
         }
         return bookList;
+    }
+
+    public ArrayList<User> readAllUsers() {
+        ArrayList<User> userList = new ArrayList<User>();
+        User user = new User();
+        DatabaseConnection databaseConnection = new DatabaseConnection();
+
+        Connection conn = databaseConnection.getDatabaseConnection();
+        String sql = "SELECT * FROM ADMINISTRATOR.USERTABLE";
+        Statement statement = null;
+        try {
+            statement = conn.createStatement();
+            ResultSet result = statement.executeQuery(sql);
+
+            int count = 0;
+            String output = "Connected: \n";
+
+            while (result.next()) {
+                String userId = result.getString(1); //userid
+                String firstName = result.getString(2); //firstname
+                String lastName = result.getString(3);     //lastName
+                String userName = result.getString(4); //userName
+                String email = result.getString(5); //email
+                String password = result.getString(6); //password
+                String userAccessLevel = result.getString(7); //userAccessLevel
+
+                output = output +"User ID" + userId + "FirstName :  " + firstName + " LastName :  " + lastName +  " UserName : " + userName +" Email : " + email + " Password : " + password + " userAccessLevel : " + userAccessLevel;
+                System.out.println(output);
+                userList.add(new User(userId, firstName, lastName, userName, email, password, userAccessLevel ));
+                //               User(String userId, String firstName, String lastName, String userName, String email, String password, String accessLevel) {
+
+            }
+            conn.close();
+            //  JOptionPane.showMessageDialog(null, output);
+
+        } catch (SQLException ex) {
+            Logger.getLogger(Read.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return userList;
+    }
+
+    //public Learner(int studentNumber, String firstName, String lastName,  boolean canBorrow)
+    public ArrayList<Learner> readAllLearners() {
+        ArrayList<Learner> learnerList = new ArrayList<Learner>();
+        Learner learner = new Learner();
+        DatabaseConnection databaseConnection = new DatabaseConnection();
+
+        Connection conn = databaseConnection.getDatabaseConnection();
+        String sql = "SELECT * FROM ADMINISTRATOR.LEARNER";
+        Statement statement = null;
+        try {
+            statement = conn.createStatement();
+            ResultSet result = statement.executeQuery(sql);
+
+            int count = 0;
+            String output = "Connected: \n";
+
+            while (result.next()) {
+                int studentNumber = result.getInt(1); //studentNumber
+                String firstName = result.getString(2); //firstname
+                String lastName = result.getString(3);     //lastName   
+                boolean canBorrow = result.getBoolean(4); //canBorrow
+
+                output = output + ++count + "Student Number :  " + studentNumber + "FirstName :  " + firstName + " LastName :  " + lastName +  " Can Borrow : " + canBorrow;
+                System.out.println(output);
+                learnerList.add(new Learner(studentNumber, firstName, lastName, canBorrow));
+                //               User(String userId, String firstName, String lastName, String userName, String email, String password, String accessLevel) {
+
+            }
+            conn.close();
+            //  JOptionPane.showMessageDialog(null, output);
+
+        } catch (SQLException ex) {
+            Logger.getLogger(Read.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return learnerList;
+
+    }
+
+    public ArrayList<Loan> readAllLoans() {
+        ArrayList<Loan> loanList = new ArrayList<Loan>();
+        Loan loan = new Loan();
+        DatabaseConnection databaseConnection = new DatabaseConnection();
+
+        Connection conn = databaseConnection.getDatabaseConnection();
+        String sql = "SELECT * FROM ADMINISTRATOR.LOAN";
+        Statement statement = null;
+        try {
+            statement = conn.createStatement();
+            ResultSet result = statement.executeQuery(sql);
+
+            int count = 0;
+            String output = "Connected: \n";
+
+            while (result.next()) {
+                int loanId = result.getInt(1); //loanId
+                String userId = result.getString(2); //userId
+                String ISBN = result.getString(3);     //ISBN
+                String dateBorrowed = result.getString(4); //dateBorrowed
+                String dateReturned = result.getString(5); //dateReturned
+                String dateDue = result.getString(6); //dateDue
+
+                output = output + ++count + "Loan ID :  " + loanId + "User ID :  " + userId + " ISBN :  " + ISBN +  " Date Borrowed : " + dateBorrowed + " Date Returned : " + dateReturned + " Date Due : " + dateDue;
+                System.out.println(output);
+                loanList.add(new Loan(loanId, Integer.parseInt(userId), ISBN, dateBorrowed, dateReturned, dateDue));
+                //               User(String userId, String firstName, String lastName, String userName, String email, String password, String accessLevel) {
+
+            }
+            conn.close();
+            //  JOptionPane.showMessageDialog(null, output);
+
+        } catch (SQLException ex) {
+            Logger.getLogger(Read.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return loanList;
+        //cast string to int
+        //int userId = Integer.parseInt(result.getString(2)); //userid
+
     }
 }
