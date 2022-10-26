@@ -4,10 +4,7 @@ package za.co.nemesisnet.supreme.invention.ServerPackages.controller;
  *
  *
  */
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -130,7 +127,43 @@ public class Read {
         return null;
     }
     
-   public Book readBook(){
+   public Book readBook(Book book){
+       //find by isbn
+         //conn
+       Book bookFromDatabase =  new Book();//
+       DatabaseConnection databaseConnection = new DatabaseConnection();
+         Connection conn = databaseConnection.getDatabaseConnection();
+         String sql = "SELECT * FROM ADMINISTRATOR.BOOK WHERE ISBN='" + book.getISBN() + "'";
+            Statement statement = null;
+            try {
+                statement = conn.createStatement();
+                ResultSet result = statement.executeQuery(sql);
+                int count = 0;
+                String output = "Connected: \n";
+                while (result.next()) {
+                    System.out.println("Book data found!" + result.getString(2));
+                  
+                    if (result.getString(1).equalsIgnoreCase(book.getISBN())) {
+                        
+                            //    public Book(String ISBN, String title, String author, String category, boolean availableForLoan) {
+                            bookFromDatabase = new Book(result.getString(1), result.getString(2), result.getString(3), result.getString(4), result.getBoolean(5));
+                            conn.close();
+                            return bookFromDatabase;
+                        
+
+                        }else {
+                            System.out.println("Missmatch - close ");
+
+                    }
+                    System.out.println("Missmatch ");
+                }
+                // JOptionPane.showMessageDialog(null, "Error - User name or password are incorrect! \n Check for typos \n Try register for a new account!");
+
+            } catch (SQLException ex) {
+                Logger.getLogger(Read.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+
        return null;
    }
    public Loan readloan(){
@@ -289,6 +322,43 @@ public class Read {
         return loanList;
         //cast string to int
         //int userId = Integer.parseInt(result.getString(2)); //userid
+
+    }
+
+    public Learner findLearner(Learner learner1) {
+        Learner learner = new Learner();
+        DatabaseConnection databaseConnection = new DatabaseConnection();
+
+        Connection conn = databaseConnection.getDatabaseConnection();
+        String sql = "SELECT * FROM ADMINISTRATOR.LEARNER WHERE STUDENTNUMBER = ?";
+        PreparedStatement statement = null;
+        try {
+            statement = conn.prepareStatement(sql);
+            statement.setInt(1, learner1.getStudentNumber());
+            ResultSet result = statement.executeQuery();
+
+            int count = 0;
+            String output = "Connected: \n";
+
+            while (result.next()) {
+                int studentNumber = result.getInt(1); //studentNumber
+                String firstName = result.getString(2); //firstname
+                String lastName = result.getString(3);     //lastName
+                boolean canBorrow = result.getBoolean(4); //canBorrow
+
+                output = output + ++count + "Student Number :  " + studentNumber + "FirstName :  " + firstName + " LastName :  " + lastName +  " Can Borrow : " + canBorrow;
+                System.out.println(output);
+                learner = new Learner(studentNumber, firstName, lastName, canBorrow);
+                //               User(String userId, String firstName, String lastName, String userName, String email, String password, String accessLevel) {
+
+            }
+            conn.close();
+            //  JOptionPane.showMessageDialog(null, output);
+
+        } catch (SQLException ex) {
+            Logger.getLogger(Read.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return learner;
 
     }
 }

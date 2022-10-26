@@ -23,7 +23,6 @@ import za.co.nemesisnet.supreme.invention.ServerPackages.controller.Create;
 import za.co.nemesisnet.supreme.invention.ServerPackages.controller.Read;
 import za.co.nemesisnet.supreme.invention.model.*;
 
-
 public class GuiServerApp extends JFrame implements ActionListener {
 
     private ServerSocket listener;
@@ -49,7 +48,6 @@ public class GuiServerApp extends JFrame implements ActionListener {
     Message message;
     Object object;
     String command = "0";
-
 
     // Client connection
     private Socket client;
@@ -152,7 +150,7 @@ public class GuiServerApp extends JFrame implements ActionListener {
             //  this.msg = "";
             System.out.println("Client connected");
             //  System.out.println("Got streams");
-            
+
             processClient();  //call the method to process the client
 
         } catch (Exception ex) {
@@ -179,8 +177,6 @@ public class GuiServerApp extends JFrame implements ActionListener {
 
     }
 
-
-
 //declare a method in which you close the streams and the socket connection    
 //declare a method in which you continuously read from the client; process the incoming data; and write results back to client.    
     public void processClient() {
@@ -189,7 +185,8 @@ public class GuiServerApp extends JFrame implements ActionListener {
             getStreams();       //call the method to initiate communication streams
             System.out.println("Got streams");          //display message
             do {
-                try {System.out.println("process client");
+                try {
+                    System.out.println("process client");
                     Message message = (Message) in.readObject();    // read new message
                     System.out.println("Message received: " + message.getText()); // display message
                     //send response message to client
@@ -207,8 +204,8 @@ public class GuiServerApp extends JFrame implements ActionListener {
                     // clientTxtArea.setText(msg);  // set text of text area
 
                     commandSelection(message, object);    //call the method to process the command sent by the client
-                  //  upCaseMsg = msg.toUpperCase();
-                   // sendData(upCaseMsg);    //send the message back to the client
+                    //  upCaseMsg = msg.toUpperCase();
+                    // sendData(upCaseMsg);    //send the message back to the client
 
                 } catch (ClassNotFoundException classNotFoundException) {
                     System.err.println("Unknown object type received");
@@ -317,9 +314,9 @@ public class GuiServerApp extends JFrame implements ActionListener {
                 clientTxtArea.append("Server says : " + response + "...\n ");
 
                 try {
-                 //   out.writeObject(new Message(" server says : Logged in!"));
+                    //   out.writeObject(new Message(" server says : Logged in!"));
                     out.writeObject(userFromDataBase);
-                     System.out.println("Server sent User object as a response : "+ userFromDataBase.toString());
+                    System.out.println("Server sent User object as a response : " + userFromDataBase.toString());
                 } catch (IOException ex) {
                     System.out.println("error :could not sent user object");
                     Logger.getLogger(GuiServerApp.class.getName()).log(Level.SEVERE, null, ex);
@@ -327,16 +324,22 @@ public class GuiServerApp extends JFrame implements ActionListener {
 
                 break;
 
-            case "FINDBOOK":
-                Book book = (Book) object;
-                findBook(book);
+            case "FIND_BOOK":
+                Book findBook = (Book) object;
+                try {
+                    out.writeObject(findBook(findBook));
+                }catch (IOException ex) {
+                    System.out.println("error :could not sent book object");
+                    Logger.getLogger(GuiServerApp.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
                 break;
             case "LISTALLBOOKS":
                 setBooks(listAllBooks());
                  {
                     try {
                         out.writeObject(books);
-                        System.out.println("Server sent books object as a response : "+ books.toString());
+                        System.out.println("Server sent books object as a response : " + books.toString());
                     } catch (IOException ex) {
                         Logger.getLogger(GuiServerApp.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -349,7 +352,7 @@ public class GuiServerApp extends JFrame implements ActionListener {
                  {
                     try {
                         out.writeObject(users);
-                        System.out.println("Server sent User object as a response : "+ users.toString());
+                        System.out.println("Server sent User object as a response : " + users.toString());
                     } catch (IOException ex) {
                         Logger.getLogger(GuiServerApp.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -361,7 +364,7 @@ public class GuiServerApp extends JFrame implements ActionListener {
                  {
                     try {
                         out.writeObject(learners);
-                        System.out.println("Server sent Learner object as a response : "+ learners.toString());
+                        System.out.println("Server sent Learner object as a response : " + learners.toString());
                     } catch (IOException ex) {
                         Logger.getLogger(GuiServerApp.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -372,8 +375,9 @@ public class GuiServerApp extends JFrame implements ActionListener {
                 setLoans(listAllLoans());
                  {
                     try {
+                        System.out.println("Server got request for LIST_ALL_LOANS");
                         out.writeObject(loans);
-                        System.out.println("Server sent Loan object as a response : "+ loans.toString());
+                        System.out.println("Server sent Loan object as a response : " + loans.toString());
                     } catch (IOException ex) {
                         Logger.getLogger(GuiServerApp.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -382,35 +386,32 @@ public class GuiServerApp extends JFrame implements ActionListener {
                 break;
             case "CREATE_BOOK":
                 Book book1 = (Book) object;
-               // createBook(book1);
+                // createBook(book1);
                 Book book2 = new Book();
                 book2 = createBook(book1);
                 setBook(book2);
-                 try {
-                        out.writeObject(book2);
-                        System.out.println("Server sent Book object as a response : "+ book2.toString());
-                    } catch (IOException ex) {
-                        Logger.getLogger(GuiServerApp.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-
+                try {
+                    out.writeObject(book2);
+                    System.out.println("Server sent Book object as a response : " + book2.toString());
+                } catch (IOException ex) {
+                    Logger.getLogger(GuiServerApp.class.getName()).log(Level.SEVERE, null, ex);
+                }
 
                 break;
-                 //create learner
+            //create learner
             case "CREATE_LEARNER":
                 Learner learner = (Learner) object;
                 Learner learner2 = new Learner();
                 learner2 = createLearner(learner);
                 setLearner(learner2);
-                 try {
-                        out.writeObject(learner2);
-                        System.out.println("Server sent Learner object as a response : "+ learner2.toString());
-                    } catch (IOException ex) {
-                        Logger.getLogger(GuiServerApp.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                 break;
+                try {
+                    out.writeObject(learner2);
+                    System.out.println("Server sent Learner object as a response : " + learner2.toString());
+                } catch (IOException ex) {
+                    Logger.getLogger(GuiServerApp.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                break;
 
-
-    
             case "CHAT":
                 String chat = (String) object;
                 String chatMessage = "Client says : " + chat + "...\n ";
@@ -423,14 +424,45 @@ public class GuiServerApp extends JFrame implements ActionListener {
                     Logger.getLogger(GuiServerApp.class.getName()).log(Level.SEVERE, null, ex);
                 }
                 break;
-
+            case "FIND_LEARNER":
+                Learner learner1 = (Learner) object;
+                try {
+                    out.writeObject(findLearner(learner1));
+                } catch (IOException ex) {
+                    Logger.getLogger(GuiServerApp.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                break;
+                case "CREATE_LOAN":
+                Loan loan = (Loan) object;
+                try {
+                    out.writeObject(createLoan(loan));
+                } catch (IOException ex) {
+                    Logger.getLogger(GuiServerApp.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                
 
             default:
                 //   throw new AssertionError();
                 System.err.println("Default case triggered, Command : " + command + " is not recognised!");
                 break;
-                
+
         }
+
+    }
+
+    private Loan createLoan(Loan loan) {
+        System.out.println("Server got request for CREATE_LOAN");
+        clientTxtArea.append("Server got request for CREATE_LOAN" + "...\n ");
+        Create create = new Create();
+        Loan loan1 = new Loan();
+        loan1 = create.createLoan(loan);
+        return loan1;
+    }
+
+    private Learner findLearner(Learner learner1) {
+        Read read = new Read();
+
+        return read.findLearner(learner1);
 
     }
 
@@ -452,10 +484,9 @@ public class GuiServerApp extends JFrame implements ActionListener {
         clientTxtArea.append("Server says : " + "Create Book request received" + "...\n ");
         Book bookFromDatabase = new Book();
         Create create = new Create();
-        bookFromDatabase = create.createBook(bookIn.getISBN(),bookIn.getTitle(),bookIn.getAuthors(),bookIn.getCategory(),bookIn.isAvailableForLoan());
+        bookFromDatabase = create.createBook(bookIn.getISBN(), bookIn.getTitle(), bookIn.getAuthors(), bookIn.getCategory(), bookIn.isAvailableForLoan());
         return bookFromDatabase;
     }
-
 
     private ArrayList listAllBooks() {
         clientTxtArea.append("Server says : " + "List all books request received" + "...\n ");
@@ -474,6 +505,7 @@ public class GuiServerApp extends JFrame implements ActionListener {
 
         return books;
     }
+
     private ArrayList<Loan> listAllLoans() {
         clientTxtArea.append("Server says : " + "List all loans request received" + "...\n ");
         ArrayList<Loan> loans = listAllLoansFromDataBase();
@@ -520,13 +552,15 @@ public class GuiServerApp extends JFrame implements ActionListener {
     }
 
     public Book findBook(Book book) {
-        System.out.println(book.getTitle());
+        System.out.println(book.getISBN());
         Read read = new Read();
         // read.readAllBooks();//read and print all books
-        Book bookFromDatabase = read.readBookByTitle(book.getTitle());
+      //  Book bookFromDatabase = read.readBookByTitle(book.getTitle());
+        Book bookFromDatabase = read.readBook(book);
         System.out.println("from db info : " + bookFromDatabase.getAuthors());
         return book;
     }
+
     private ArrayList listAllUsers() {
         clientTxtArea.append("Server says : " + "List all users request recived" + "...\n ");
         ArrayList<User> users = listAllUsersFromDataBase();
@@ -536,14 +570,15 @@ public class GuiServerApp extends JFrame implements ActionListener {
         }
         return users;
 
+    }
 
-        }
     private ArrayList listAllUsersFromDataBase() {
-        ArrayList<User> usersFromDatabase ;
+        ArrayList<User> usersFromDatabase;
         Read read = new Read();
         usersFromDatabase = read.readAllUsers();
         return usersFromDatabase;
     }
+
     public void exit() {
         JOptionPane.showMessageDialog(new JFrame(), "Thanks for using my program!  \n \n " + "Author : Peter Buckingham \n Student Number: ****65289 \n Date: Oct 2022", "Server System - Goodbye ", JOptionPane.INFORMATION_MESSAGE);
         System.out.println("");
